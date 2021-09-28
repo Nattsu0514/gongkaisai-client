@@ -2,24 +2,12 @@ import functools
 import os
 from http.server import HTTPServer, SimpleHTTPRequestHandler
 
-import mitmproxy.http
 from PyQt5.QtCore import QThread
 from mitmproxy.options import Options
 from mitmproxy.proxy import ProxyServer, ProxyConfig
 from mitmproxy.tools.dump import DumpMaster
 
 import browser_proxy_setting
-
-
-class Fight:
-    def requestheaders(self, flow: mitmproxy.http.HTTPFlow):
-        if flow.request.url.startswith("http://seer.61.com/dll/PetFightDLL_201308.swf"):
-            flow.request.url = r"http://127.0.0.1:8000/fight/fight.swf"
-            return
-
-        if flow.request.url.startswith("http://seer.61.com/resource/xml/battleStrategy.xml"):
-            flow.request.url = r"http://127.0.0.1:8000/fight/battleStrategy.xml"
-            return
 
 
 class Http(QThread):
@@ -51,7 +39,7 @@ class Proxy:
 
     @classmethod
     def add_addon(cls, rule):
-        cls.addons.add(rule())
+        cls.addons.add(rule)
 
     def run(self) -> None:
         browser_proxy_setting.set_proxy_settings(self.host, self.port)
