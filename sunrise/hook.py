@@ -1,4 +1,4 @@
-from mainwindow import MainWindow
+from sunrise.mainwindow import MainWindow
 
 
 def main_window_instantiate(func):

@@ -8,18 +8,16 @@ from typing import Optional, Type
 from PyQt5.QtWidgets import QApplication
 from quamash import QEventLoop
 
-import hook
-import server
-from engines import Engine
-from mainwindow import MainWindow
-from options import ClearCache
+from sunrise import hook, server
+from sunrise.engines import Engine
+from sunrise.mainwindow import MainWindow
+from sunrise.manager import PluginLoader
+from sunrise.options import clear_cache
 
 _main: Optional[MainWindow] = None
 _engine: Optional[Engine] = None
 
 _http_server = server.Http("127.0.0.1", 8000)
-
-clear_cache = ClearCache()
 
 
 def get_engine():
@@ -33,7 +31,7 @@ def apply_engine(engine_module) -> Type[Engine]:
     if _main is None:
         raise ValueError
 
-    module = importlib.import_module(engine_module)
+    module = importlib.import_module(f"sunrise.{engine_module}")
     engine = getattr(module, "Engine")
 
     if _engine is None:
@@ -62,15 +60,12 @@ def init(engine_module: Optional[str] = None):
 
     _main = MainWindow("公开赛测试")
     _engine = apply_engine(engine_module)
-    # _class(_main)
+    plugin_loader = PluginLoader()
+    plugin_loader.load_plugin("plugins")
 
 
 def run():
     global _proxy_server, _http_server
-
-    for path_finder, name, __ in pkgutil.iter_modules([os.path.relpath("plugins", os.getcwd())]):
-        print(name)
-        path_finder.find_module(f"plugins.{name}").load_module(f"plugins.{name}")
 
     _main.show()
     _http_server = server.Http("127.0.0.1", 8000)

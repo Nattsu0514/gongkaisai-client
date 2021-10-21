@@ -2,7 +2,8 @@ import re
 
 import mitmproxy.http
 
-from plugin_loader import PluginMenu
+from sunrise.options import get_file_as_byte
+from sunrise.plugin import PluginMenu
 
 plugin_menu = PluginMenu("插件")
 
@@ -20,9 +21,9 @@ class Effect:
 
         self.SWITCH = not self.SWITCH
 
-    def requestheaders(self, flow: mitmproxy.http.HTTPFlow):
+    def response(self, flow: mitmproxy.http.HTTPFlow):
         if re.search(self.url_pattern, flow.request.url, re.I) and self.SWITCH:
-            flow.request.url = r"http://127.0.0.1:8000/10001.swf"
+            flow.response.content = get_file_as_byte(r"file/10001.swf")
 
 
 @plugin_menu.checkable_rule_action('精灵变伊优')

@@ -1,7 +1,7 @@
 from PyQt5.QAxContainer import QAxWidget
 
-from engines import Engine
-from options import Singleton
+from sunrise.engines import Engine
+from sunrise.options import Singleton
 
 
 @Singleton

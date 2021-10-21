@@ -14,6 +14,9 @@ class ClearCache(QThread):
         process.waitForFinished()
 
 
+clear_cache = ClearCache()
+
+
 def Singleton(cls):
     instance = {}
 
@@ -25,9 +28,14 @@ def Singleton(cls):
     return _singleton_wrapper
 
 
+def get_file_as_byte(path: str):
+    with open(path, "rb") as file:
+        return file.read()
+
+
 def setMute(mute: bool):
     sessions = AudioUtilities.GetAllSessions()
     for session in sessions:
         volume = session.SimpleAudioVolume
-        if session.Process and session.Process.name() == "python.exe":
+        if session.Process and session.Process.name() == "sunrise.exe":
             volume.SetMasterVolume(1.0, None) if mute else volume.SetMasterVolume(0, None)

@@ -7,7 +7,7 @@ from mitmproxy.options import Options
 from mitmproxy.proxy import ProxyServer, ProxyConfig
 from mitmproxy.tools.dump import DumpMaster
 
-import browser_proxy_setting
+from sunrise import browser_proxy_setting
 
 
 class Http(QThread):
@@ -30,9 +30,9 @@ class Proxy:
         self.host: str = host
         self.port: int = port
 
-        options: Options = Options(listen_host=self.host, listen_port=self.port, ignore_hosts=[".*443$"])
+        options: Options = Options(listen_host=self.host, listen_port=self.port)
         config: ProxyConfig = ProxyConfig(options)
-        self.master: DumpMaster = DumpMaster(options, with_termlog=False, with_dumper=False)
+        self.master: DumpMaster = DumpMaster(options, with_termlog=False, with_dumper=True)
 
         self.master.server = ProxyServer(config)
         self.master.addons.add(*self.addons)

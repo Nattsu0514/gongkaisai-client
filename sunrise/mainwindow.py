@@ -2,7 +2,7 @@ from typing import Optional
 
 from PyQt5.QtWidgets import QMainWindow
 
-from bar import MainMenuBar
+from sunrise.bar import MainMenuBar
 
 
 class MainWindow(QMainWindow):

@@ -1,7 +1,8 @@
 import mitmproxy.http
 
-import client
-from plugin_loader import PluginMenu
+import sunrise
+from sunrise.options import get_file_as_byte
+from sunrise.plugin import PluginMenu
 
 mode_menu = PluginMenu("模式")
 
@@ -15,14 +16,14 @@ class Fight:
             self.SWITCH = False
 
         self.SWITCH = not self.SWITCH
-        client.get_engine().refresh()
+        sunrise.get_engine().refresh()
 
-    def requestheaders(self, flow: mitmproxy.http.HTTPFlow):
-        if flow.request.url.startswith("http://seer.61.com/dll/PetFightDLL_201308.swf") and self.SWITCH:
-            flow.request.url = r"http://127.0.0.1:8000/fight/ttsfight.swf"
+    def response(self, flow: mitmproxy.http.HTTPFlow):
+        if "xml/battleStrategy.xml" in flow.request.pretty_url:
+            flow.response.content = get_file_as_byte(r"file\fight\battleStrategy.xml")
 
-        elif flow.request.url.startswith("http://seer.61.com/dll/PetFightDLL_201308.swf") and not self.SWITCH:
-            flow.request.url = r"http://127.0.0.1:8000/fight/fight.swf"
+        if "dll/PetFightDLL_201308.swf" in flow.request.pretty_url and self.SWITCH:
+            flow.response.content = get_file_as_byte(r"file/fight/ttsfight.swf")
 
-        if flow.request.url.startswith("http://seer.61.com/resource/xml/battleStrategy.xml"):
-            flow.request.url = r"http://127.0.0.1:8000/fight/battleStrategy.xml"
+        elif "dll/PetFightDLL_201308.swf" in flow.request.pretty_url and not self.SWITCH:
+            flow.request.url = get_file_as_byte("file/fight/fight.swf")

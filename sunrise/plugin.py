@@ -1,19 +1,31 @@
-from typing import Optional, Any
+from typing import Optional, Any, Dict, Set, Type
 
 from PyQt5.QtWidgets import QAction, QMenu
 
-from bar import MainMenuBar
-from options import ClearCache
-from server import Proxy
+from sunrise.bar import MainMenuBar
+from sunrise.options import ClearCache
+from sunrise.server import Proxy
 
 
 class PluginMenu(QMenu):
     actions: set = set()
 
+    def __new__(cls, title: str):
+        if menu := plugins_dict.get(title):
+            return menu
+        else:
+            return super().__new__(cls)
+            #
+
     def __init__(self, title: str):
+        if plugins_dict.get(title):
+            return
+
         self.menubar = MainMenuBar()
         super().__init__(title, self.menubar)
+
         self.menubar.addMenu(self)
+        plugins_dict[title] = self
 
     def button_action(self, name: str):
         def warp(func):
@@ -59,3 +71,6 @@ class PluginAction(QAction):
             Proxy.add_addon(self.plugin)
             self.cache = ClearCache()
             self.triggered.connect(self.cache.start)
+
+
+plugins_dict: Dict[str, PluginMenu] = dict()

@@ -1,5 +1,5 @@
-import client
+import sunrise
 
 if __name__ == '__main__':
-    client.init("engines.trident")
-    client.run()
+    sunrise.init("engines.trident")
+    sunrise.run()
