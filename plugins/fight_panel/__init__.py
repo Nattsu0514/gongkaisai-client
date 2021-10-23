@@ -26,4 +26,4 @@ class Fight:
             flow.response.content = get_file_as_byte(r"file/fight/ttsfight.swf")
 
         elif "dll/PetFightDLL_201308.swf" in flow.request.pretty_url and not self.SWITCH:
-            flow.request.url = get_file_as_byte("file/fight/fight.swf")
+            flow.response.content = get_file_as_byte("file/fight/fight.swf")
