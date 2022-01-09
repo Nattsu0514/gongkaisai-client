@@ -68,6 +68,3 @@ def set_proxy_settings(ip, port, on=True):
     InternetSetOption(None, INTERNET_OPTION_PER_CONNECTION_OPTION, byref(List), nSize)
     InternetSetOption(None, INTERNET_OPTION_SETTINGS_CHANGED, None, 0)
     InternetSetOption(None, INTERNET_OPTION_REFRESH, None, 0)
-
-
-set_proxy_settings("127.0.0.1", 52042, on=False)

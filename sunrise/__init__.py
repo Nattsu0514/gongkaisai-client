@@ -1,23 +1,25 @@
 import asyncio
 import importlib
 import os
-import pkgutil
 import sys
-from typing import Optional, Type
+from typing import Optional, Type, Any
 
+from PyQt5.QtCore import QThread
 from PyQt5.QtWidgets import QApplication
 from quamash import QEventLoop
 
-from sunrise import hook, server
+from sunrise import hook, browser_proxy_setting
+from sunrise.config import Env
 from sunrise.engines import Engine
+from sunrise.filter import mitmproxy
 from sunrise.mainwindow import MainWindow
-from sunrise.manager import PluginLoader
-from sunrise.options import clear_cache
+from sunrise.manager import PluginManager
+from sunrise.util import clear_cache
 
 _main: Optional[MainWindow] = None
 _engine: Optional[Engine] = None
-
-_http_server = server.Http("127.0.0.1", 8000)
+_proxy_server: Any = None
+plugin_manager: Optional[PluginManager] = None
 
 
 def get_engine():
@@ -27,11 +29,11 @@ def get_engine():
     return _engine
 
 
-def apply_engine(engine_module) -> Type[Engine]:
+def set_engine(engine_module) -> Type[Engine]:
     if _main is None:
         raise ValueError
 
-    module = importlib.import_module(f"sunrise.{engine_module}")
+    module = importlib.import_module(engine_module)
     engine = getattr(module, "Engine")
 
     if _engine is None:
@@ -41,38 +43,35 @@ def apply_engine(engine_module) -> Type[Engine]:
 
 
 @hook.main_window_instantiate
-def run_server():
-    clear_cache.start()
+def init_server():
+    browser_proxy_setting.set_proxy_settings("127.0.0.1", 8099)
+    clear_cache.start(QThread.LowestPriority)
 
 
 @hook.main_window_shutdown
 def shutdown_server():
-    _proxy_server.terminate()
-    _http_server.terminate()
-    _http_server.wait()
+    browser_proxy_setting.set_proxy_settings("127.0.0.1", 8099, on=False)
+    _proxy_server.shutdown()
 
 
-def init(engine_module: Optional[str] = None):
-    global _main, _engine
+def init():
+    global _main, _engine, plugin_manager
+
     app = QApplication(sys.argv)
     loop = QEventLoop(app)
     asyncio.set_event_loop(loop)
 
-    _main = MainWindow("公开赛测试")
-    _engine = apply_engine(engine_module)
-    plugin_loader = PluginLoader()
-    plugin_loader.load_plugin("plugins")
+    plugin_manager = PluginManager()
+
+    _main = MainWindow("sunrise公开赛专属登录器正式版")
+    _engine = set_engine(Env().ENGINE_MODULE)
 
 
 def run():
-    global _proxy_server, _http_server
-
+    global _proxy_server
     _main.show()
-    _http_server = server.Http("127.0.0.1", 8000)
-    _http_server.start()
 
-    _proxy_server = server.Proxy("127.0.0.1", 8099)
+    _proxy_server = mitmproxy.Filter()
     _proxy_server.run()
 
-    # app.exec_()
     os._exit(0)

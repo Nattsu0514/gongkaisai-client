@@ -1,5 +1,6 @@
 from typing import Optional
 
+from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QMainWindow
 
 from sunrise.bar import MainMenuBar
@@ -16,6 +17,7 @@ class MainWindow(QMainWindow):
         self.setWindowTitle(title)
         self.resize(960, 583)
         self.setMenuBar(MainMenuBar())
+        self.setWindowIcon(QIcon('Logo.ico'))
 
     def closeEvent(self, event) -> None:
         [func() for func in self.shutdown_set]

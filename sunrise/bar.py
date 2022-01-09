@@ -2,7 +2,7 @@ from typing import Optional
 
 from PyQt5.QtWidgets import QMainWindow, QMenuBar
 
-from sunrise.options import Singleton
+from sunrise.util import Singleton
 
 
 @Singleton

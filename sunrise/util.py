@@ -7,7 +7,6 @@ class ClearCache(QThread):
         super().__init__()
 
     def run(self) -> None:
-        print(0)
         process = QProcess()
         process.start("cmd", ["/c", "RunDll32.exe", "InetCpl.cpl,ClearMyTracksByProcess", "8"])
         process.waitForStarted()

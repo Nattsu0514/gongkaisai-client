@@ -1,10 +1,10 @@
-from typing import Optional, Any, Dict, Set, Type
+from typing import Optional, Dict, Type
 
 from PyQt5.QtWidgets import QAction, QMenu
 
 from sunrise.bar import MainMenuBar
-from sunrise.options import ClearCache
-from sunrise.server import Proxy
+from sunrise.filter.mitmproxy import FilterRuleManager
+from sunrise.util import ClearCache
 
 
 class PluginMenu(QMenu):
@@ -55,7 +55,7 @@ class PluginMenu(QMenu):
 class PluginAction(QAction):
     def __init__(self,
                  name: str,
-                 plugin: Any,
+                 plugin: Type,
                  auto_responder_rule: bool = True,
                  checkable: Optional[bool] = None):
         super().__init__(name)
@@ -68,7 +68,7 @@ class PluginAction(QAction):
             self.triggered.connect(plugin)
 
         if auto_responder_rule:
-            Proxy.add_addon(self.plugin)
+            FilterRuleManager().add_rule(name, self.plugin)
             self.cache = ClearCache()
             self.triggered.connect(self.cache.start)
 

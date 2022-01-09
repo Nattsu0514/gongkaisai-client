@@ -1,6 +1,6 @@
 import sunrise
-from sunrise.options import setMute, clear_cache
 from sunrise.plugin import PluginMenu
+from sunrise.util import setMute, clear_cache
 
 base = PluginMenu("菜单")
 
@@ -11,7 +11,7 @@ def refresh():
 
 
 @base.button_action("清缓")
-def clear_cache():
+def clear():
     clear_cache.start()
 
 
