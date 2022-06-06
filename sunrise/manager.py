@@ -21,11 +21,10 @@ class PluginManager(BaseModuleManager):
         self.load_basic_plugins()
 
     def load_plugin(self, module_name):
-        try:
-            self.load_module(module_name)
-        except Exception:
-
-            return
+        # try:
+        self.load_module(module_name)
+        # except Exception:
+        #    ...
 
     def load_plugins(self, module_name: Sequence[str]):
         for i in module_name:

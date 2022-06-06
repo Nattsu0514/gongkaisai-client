@@ -1,5 +1,6 @@
 # -*- mode: python ; coding: utf-8 -*-
 import os
+import sys
 
 block_cipher = None
 
@@ -13,11 +14,14 @@ def get_modules(module_dir):
 
 hiddenimports = get_modules("sunrise/engines")
 hiddenimports += get_modules("sunrise/basic_plugins")
+hiddenimports += get_modules("sunrise/filter")
+
+current_dir = os.path.abspath('')
 
 a = Analysis(['run.py'],
-             pathex=['D:\\Nattsu_python\\gongkaisai_client'],
+             pathex=[r'D:\Nattsu_python\gongkaisai_client'],
              binaries=[],
-             datas=[('./file', 'file'), ('./plugins', 'plugins'), (".env", ".")],
+             datas=[('./file', 'file'), ('./plugins', 'plugins'), ('./dll', 'dll'), (".env", ".")],
              hiddenimports=hiddenimports,
              hookspath=[],
              runtime_hooks=[],
@@ -40,7 +44,7 @@ exe = EXE(pyz,
           strip=False,
           upx=True,
           console=False,
-          uac_admin=True)
+          uac_admin=False)
 coll = COLLECT(exe,
                a.binaries,
                a.zipfiles,

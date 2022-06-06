@@ -1,14 +1,27 @@
 import abc
+from dataclasses import dataclass
+from typing import Set, Callable, Union, Pattern, Dict, AnyStr, Type
 
-from typing import Set, Callable, Union, Pattern
+from sunrise import env
 
 proxy_startup_set: Set[Callable] = set()
 proxy_shutdown_set: Set[Callable] = set()
 
 
+@dataclass
+class MetaRule(metaclass=abc.ABCMeta):
+    pattern: Union[str, Pattern[AnyStr]]
+    respond: Union[str, int]
+    priority: int = 0
+
+
 class MetaFilter(metaclass=abc.ABCMeta):
+    host: str = env.FILTER_HOST
+    port: int = env.FILTER_PORT
+    Rules: Dict[str, Type[MetaRule]] = {}
+
     @abc.abstractmethod
-    def run(self):
+    def startup(self):
         pass
 
     @abc.abstractmethod
@@ -32,5 +45,3 @@ class MetaRuleManager(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def remove(self, name: str):
         pass
-
-

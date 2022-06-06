@@ -3,7 +3,7 @@ from typing import Optional, Dict, Type
 from PyQt5.QtWidgets import QAction, QMenu
 
 from sunrise.bar import MainMenuBar
-from sunrise.filter.mitmproxy import FilterRuleManager
+from sunrise.rule import RuleManager, Rule
 from sunrise.util import ClearCache
 
 
@@ -29,7 +29,7 @@ class PluginMenu(QMenu):
 
     def button_action(self, name: str):
         def warp(func):
-            action = PluginAction(name, func, checkable=False, auto_responder_rule=False)
+            action = PluginAction(name, func, checkable=False)
             self.addAction(action)
             return action
 
@@ -37,15 +37,15 @@ class PluginMenu(QMenu):
 
     def checkable_action(self, name: str):
         def warp(func):
-            action = PluginAction(name, func, auto_responder_rule=False, checkable=True)
+            action = PluginAction(name, func, checkable=True)
             self.addAction(action)
             return action
 
         return warp
 
-    def checkable_rule_action(self, name: str):
+    def checkable_rule_action(self, name: str, rule):
         def warp(func):
-            action = PluginAction(name, func, checkable=True)
+            action = PluginAction(name, func, rule, checkable=True)
             self.addAction(action)
             return action
 
@@ -56,19 +56,20 @@ class PluginAction(QAction):
     def __init__(self,
                  name: str,
                  plugin: Type,
-                 auto_responder_rule: bool = True,
+                 rule: Optional[Rule] = None,
                  checkable: Optional[bool] = None):
         super().__init__(name)
-        if checkable:
-            self.plugin = plugin()
 
+        if checkable:
             self.setCheckable(checkable)
-            self.triggered.connect(self.plugin.switch)
+            self.plugin = plugin()
+            self.triggered.connect(self.plugin)
         else:
             self.triggered.connect(plugin)
 
-        if auto_responder_rule:
-            FilterRuleManager().add_rule(name, self.plugin)
+        if rule is not None:
+            RuleManager().add(name, rule)
+            self.plugin.name = name
             self.cache = ClearCache()
             self.triggered.connect(self.cache.start)
 

@@ -19,7 +19,7 @@ def clear():
 class mute:
     SWITCH: bool = False
 
-    def switch(self):
+    def __call__(self, *args, **kwargs):
         setMute(self.SWITCH)
         self.SWITCH = not self.SWITCH
 

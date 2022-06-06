@@ -1,7 +1,7 @@
 from pydantic import BaseSettings
 
 
-class Env(BaseSettings):
+class env(BaseSettings):
     FILTER_MODULE: str
     FILTER_HOST: str = "127.0.0.1"
     FILTER_PORT: int
@@ -12,5 +12,4 @@ class Env(BaseSettings):
         env_file_encoding = 'utf-8'
 
 
-class Config(BaseSettings):
-    pass
+env = env()

@@ -1,5 +1,5 @@
 from PyQt5.QtCore import QThread, QProcess
-from pycaw.utils import AudioUtilities
+from pycaw.pycaw import AudioUtilities
 
 
 class ClearCache(QThread):

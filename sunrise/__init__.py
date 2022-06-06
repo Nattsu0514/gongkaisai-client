@@ -1,25 +1,29 @@
-import asyncio
 import importlib
-import os
 import sys
-from typing import Optional, Type, Any
+from typing import Optional, Type
 
-from PyQt5.QtCore import QThread
 from PyQt5.QtWidgets import QApplication
-from quamash import QEventLoop
 
-from sunrise import hook, browser_proxy_setting
-from sunrise.config import Env
+from sunrise import hook
+from sunrise.config import env
 from sunrise.engines import Engine
-from sunrise.filter import mitmproxy
+from sunrise.filter import MetaFilter
 from sunrise.mainwindow import MainWindow
 from sunrise.manager import PluginManager
 from sunrise.util import clear_cache
 
 _main: Optional[MainWindow] = None
 _engine: Optional[Engine] = None
-_proxy_server: Any = None
+_filter: Optional[MetaFilter] = None
+pid: Optional[int] = None
 plugin_manager: Optional[PluginManager] = None
+
+
+def get_filter():
+    if _filter is None:
+        raise ValueError
+
+    return _filter
 
 
 def get_engine():
@@ -44,34 +48,26 @@ def set_engine(engine_module) -> Type[Engine]:
 
 @hook.main_window_instantiate
 def init_server():
-    browser_proxy_setting.set_proxy_settings("127.0.0.1", 8099)
-    clear_cache.start(QThread.LowestPriority)
+    clear_cache.start()
 
 
-@hook.main_window_shutdown
+@hook.main_window_close
 def shutdown_server():
-    browser_proxy_setting.set_proxy_settings("127.0.0.1", 8099, on=False)
-    _proxy_server.shutdown()
+    _filter.shutdown()
 
 
 def init():
-    global _main, _engine, plugin_manager
-
+    global _main, _engine, _filter, app, pid
     app = QApplication(sys.argv)
-    loop = QEventLoop(app)
-    asyncio.set_event_loop(loop)
-
-    plugin_manager = PluginManager()
-
     _main = MainWindow("sunrise公开赛专属登录器正式版")
-    _engine = set_engine(Env().ENGINE_MODULE)
+    _engine = set_engine(env.ENGINE_MODULE)
+    pid = _main.pid
+    _filter = getattr(importlib.import_module(env.FILTER_MODULE), "Filter")()
+    plugin_manager = PluginManager()
+    plugin_manager.load_all_plugin("plugins")
 
 
 def run():
-    global _proxy_server
     _main.show()
-
-    _proxy_server = mitmproxy.Filter()
-    _proxy_server.run()
-
-    os._exit(0)
+    _filter.startup()
+    sys.exit(app.exec_())

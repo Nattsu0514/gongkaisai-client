@@ -1,4 +1,7 @@
 class Engine:
+    name: str
+    url: str
+
     def __init__(self):
         pass
 

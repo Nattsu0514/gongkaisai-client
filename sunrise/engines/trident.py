@@ -1,11 +1,11 @@
 from PyQt5.QAxContainer import QAxWidget
 
-from sunrise.engines import Engine
-from sunrise.util import Singleton
+from sunrise import engines
 
 
-@Singleton
-class Engine(QAxWidget, Engine):
+class Engine(QAxWidget, engines.Engine):
+    name = "ie"
+
     def __init__(self, main_window):
         super().__init__('{8856F961-340A-11D0-A96B-00C04FD705A2}', main_window)
         self.dynamicCall('Navigate(const QString&)', r'https://seer.61.com/play.shtml')
@@ -18,4 +18,3 @@ class Engine(QAxWidget, Engine):
 
     def open_page(self, url: str):
         self.dynamicCall('Navigate(const QString&)', url)
-
